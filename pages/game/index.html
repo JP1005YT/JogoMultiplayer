@@ -64,24 +64,30 @@
 
     const container = document.getElementById("container");
     var players = {};
-
+    
     function LoadPlayers(data) {
+      console.log(data);
       data.forEach((player) => {
-
-        players[player.name] = new Square(
-          player.name,
-          50,
-          player.posX,
-          player.posY,
-          player.Color
-        );
+        if(typeof players[player.name] == "undefined") {
+          players[player.name] = new Square(
+            player.name,
+            50,
+            player.posX,
+            player.posY,
+            player.Color
+            );
+          console.log("criou " + players[player.name].name);
+        };
       });
     };
 
     function UpdatePlayers(data) {
-      data.forEach((player) => {
-        players[player.name].x = player.posX;
-        players[player.name].y = player.posY;
+      data.forEach((square) => {
+        if(players[square.name].name !== player.name)
+        {
+          players[square.name].x = square.posX;
+          players[square.name].y = square.posY;
+        }
       });
     }
 
@@ -105,8 +111,11 @@
       this.name = name;
       this.x = x;
       this.y = y;
-      this.speedX = 0;
-      this.speedY = 0;
+      this.speed = 1;
+      this.isRight = false;
+       this.isLeft = false;
+        this.isTop = false;
+        this.isBottom = false;
       this.color = color;
       this.update = function () {
         ctx = myGameArea.context;
@@ -119,8 +128,18 @@
         }
       };
       this.newPos = function () {
-        this.x += this.speedX;
-        this.y += this.speedY;
+        if(this.isRight){
+          this.x += this.speed
+        }
+        if(this.isLeft){
+          this.x -= this.speed
+        }
+        if(this.isTop){
+          this.y += this.speed
+        }
+        if(this.isBottom){
+          this.y -= this.speed
+        }
       };
     }
 
@@ -133,49 +152,65 @@
     }
 
     addEventListener("keyup", function (e) {
-      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-        for (const square in players) {
-          if (square === player.name) {
-            players[square].speedX = 0;
-          }
-        }
-      }
-
-      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-        for (const square in players) {
-          if (square === player.name) {
-            players[square].speedY = 0;
-          }
-        }
-      }
-    })
-    addEventListener("keydown", function (e) {
       switch (e.key) {
         case "ArrowRight":
           for (const square in players) {
             if (square === player.name) {
-              players[square].speedX = 2;
+              players[square].isRight = false;
             }
           }
           break;
         case "ArrowLeft":
           for (const square in players) {
             if (square === player.name) {
-              players[square].speedX = -2;
+              players[square].isLeft= false;
             }
           }
           break;
         case "ArrowUp":
           for (const square in players) {
             if (square === player.name) {
-              players[square].speedY = -2;
+              players[square].isBottom = false;
             }
           }
           break;
         case "ArrowDown":
           for (const square in players) {
             if (square === player.name) {
-              players[square].speedY = 2;
+              players[square].isTop = false;
+            }
+          }
+          break;
+        }
+    })
+    
+    addEventListener("keydown", function (e) {
+      switch (e.key) {
+        case "ArrowRight":
+          for (const square in players) {
+            if (square === player.name) {
+              players[square].isRight = true;
+            }
+          }
+          break;
+        case "ArrowLeft":
+          for (const square in players) {
+            if (square === player.name) {
+              players[square].isLeft= true;
+            }
+          }
+          break;
+        case "ArrowUp":
+          for (const square in players) {
+            if (square === player.name) {
+              players[square].isBottom = true;
+            }
+          }
+          break;
+        case "ArrowDown":
+          for (const square in players) {
+            if (square === player.name) {
+              players[square].isTop = true;
             }
           }
           break;
@@ -188,9 +223,9 @@
           }
       }
     });
+    
     buscardados();
     myGameArea.start();
   </script>
-</body>
-
+</body> 
 </html>
