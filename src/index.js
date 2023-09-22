@@ -8,72 +8,46 @@ let S = new Server()
 S.start()
 
 let app = S.app
-let isLoged = {}
-let playersObj = [{}]
+const Sio = S.io
+let LoggedPlayers = []
 
-S.io.on('connection', (socket) => {
+Sio.on("connection", (socket) => {
+    socket.on("connected", async (token) => {
+        let logged = await FetchLoggedPlayers(token);
+        logged['socketID'] = socket.id
+        LoggedPlayers.push(logged);
+        Sio.emit("UpdatePlayers", LoggedPlayers);
 
-    socket.on('data', async (player) => {
-        let Exists
-        for (const chave in isLoged) {
-            if (isLoged.hasOwnProperty(chave)) {
-                if (isLoged[chave] === player) {
-                    Exists = true
-                }
-            }
-        }
-        if (!Exists) {
-            isLoged[`${socket.id}`] = player
-
-        }
-        playersObj = await AdquirePlayerLogStats()
-        S.io.emit("loadPlayers", playersObj)
     });
-
-    socket.on("positionUpdate", async (data) => {
-        playersObj.forEach(player => {
-            if (player.name === data[2]) {
-                player.posX = data[0];
-                player.posY = data[1];
+    socket.on("disconnect", async () => {
+        LoggedPlayers.forEach((player, index) => {
+            if (player.socketID === socket.id) {
+                LoggedPlayers.splice(index, 1)
             }
         })
-        S.io.emit("updatePlayers", playersObj);
+        Sio.emit("UpdatePlayers", LoggedPlayers); 
     })
 
-    socket.on('disconnect', async () => {
-        delete isLoged[socket.id]
-        playersObj = await AdquirePlayerLogStats()
-        S.io.emit("updatePlayers", playersObj)
-    })
-});
+})
 
-async function AdquirePlayerLogStats() {
-    let data = P.Buscar('./data/users.json')
-    let nameslogged = []
-    let dataofFinal = []
+async function FetchLoggedPlayers(token) {
+    const data = await P.Buscar('./data/users.json')
 
-    for (const chave in isLoged) {
-        if (isLoged.hasOwnProperty(chave)) {
-            nameslogged.push(isLoged[chave])
+    let Player
+
+    data.forEach(user => {
+        if (user.Token === token) {
+            Player = user
         }
-    }
-
-
-    nameslogged.forEach(nome => {
-        data.users.forEach(usuario => {
-            if (usuario.name === nome) {
-                dataofFinal.push(usuario)
-            }
-        })
+        return;
     })
-
-    return dataofFinal
+    return Player;
 }
 
 app.get('/login', async (req, res) => {
     let dados = JSON.parse(req.headers.data)
     let data = P.Buscar("./data/users.json")
-    data.users.forEach(element => {
+    data.forEach(element => {
         if (element.name === dados.user) {
             element.Token = P.uid.v4()
             res.send(element)
@@ -84,7 +58,7 @@ app.get('/login', async (req, res) => {
 app.get('/play', async (req, res) => {
     let data = P.Buscar("./data/users.json")
     let caminho
-    data.users.forEach(element => {
+    data.forEach(element => {
         if (element.Token === req.query.token) {
             caminho = P.path.join(__dirname, '../', 'pages', 'game', 'index.html')
         }
@@ -98,7 +72,7 @@ app.get('/play', async (req, res) => {
 app.get('/user', async (req, res) => {
     let dados = JSON.parse(req.headers.data)
     let data = P.Buscar("./data/users.json")
-    data.users.forEach(element => {
+    data.forEach(element => {
         if (element.Token === dados.token) {
             res.send(element)
         }

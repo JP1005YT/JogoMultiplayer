@@ -36,60 +36,75 @@
 
     // Quando a conexão com o servidor é estabelecida
     socket.on("connect", () => {
-      setTimeout(() => {
-        socket.emit("data", player.name);
-      }, 1000);
-    });
-    socket.on("loadPlayers", (data) => {
-      LoadPlayers(data);
-    });
-    socket.on("updatePlayers", (data) => {
-      UpdatePlayers(data);
-    });
-    let player;
+      socket.emit("connected", token);
 
-    async function buscardados() {
-      let json = {
-        token: token,
-      };
-      const dados = await fetch("../user", {
-        method: "GET",
-        headers: {
-          data: JSON.stringify(json),
-        },
+      socket.on("UpdatePlayers", (players) => {
+        UpdatePlayers(players);
       });
-      resposta = await dados.json();
-      player = resposta;
-    }
+    });
+    // let player;
+
+    // async function buscardados() {
+    //   let json = {
+    //     token: token,
+    //   };
+    //   const dados = await fetch("../user", {
+    //     method: "GET",
+    //     headers: {
+    //       data: JSON.stringify(json),
+    //     },
+    //   });
+    //   resposta = await dados.json();
+    //   player = resposta;
+    // }
 
     const container = document.getElementById("container");
-    var players = {};
-    
-    function LoadPlayers(data) {
-      console.log(data);
-      data.forEach((player) => {
-        if(typeof players[player.name] == "undefined") {
-          players[player.name] = new Square(
-            player.name,
-            50,
-            player.posX,
-            player.posY,
-            player.Color
-            );
-          console.log("criou " + players[player.name].name);
-        };
-      });
-    };
+    let players = [];
 
     function UpdatePlayers(data) {
-      data.forEach((square) => {
-        if(players[square.name].name !== player.name)
-        {
-          players[square.name].x = square.posX;
-          players[square.name].y = square.posY;
+      data.forEach((playerBack) => {
+        if (players[playerBack.name] === undefined) {
+          players[playerBack.name] = new Square(
+            playerBack.name,
+            50,
+            playerBack.posX,
+            playerBack.posY,
+            playerBack.Color
+          );
         }
       });
+      const filteredObject = {};
+
+      for (const key in players) {
+        console.log(data.includes(key))
+        if (players.hasOwnProperty(key) && data.filter(x => x.includes(key))) {
+          filteredObject[key] = players[key];
+        }
+      }
+      console.log(filteredObject);
+      // console.log(players);
+      console.log(data);
+      // players.forEach((playerFront) => {
+      //   console.log("cenoura")
+      //   data.forEach((playerBack) => {
+      //     console.log(playerFront);
+      //     console.log(playerFront);
+      //     console.log("batata");
+      //     if (playerFront.name !== playerBack.name) {
+      //       console.log('fudeu')
+      //     }
+      //   });
+      // });
     }
+    // function UpdatePlayers(data) {
+    //   data.forEach((square) => {
+    // ;    if(players[square.name].name !== player.name)
+    //     {
+    //       players[square.name].x = square.posX;
+    //       players[square.name].y = square.posY;
+    //     }
+    //   });
+    // }
 
     var myGameArea = {
       canvas: document.createElement("canvas"),
@@ -113,9 +128,9 @@
       this.y = y;
       this.speed = 1;
       this.isRight = false;
-       this.isLeft = false;
-        this.isTop = false;
-        this.isBottom = false;
+      this.isLeft = false;
+      this.isTop = false;
+      this.isBottom = false;
       this.color = color;
       this.update = function () {
         ctx = myGameArea.context;
@@ -128,16 +143,16 @@
         }
       };
       this.newPos = function () {
-        if(this.isRight){
+        if (this.isRight) {
           this.x += this.speed
         }
-        if(this.isLeft){
+        if (this.isLeft) {
           this.x -= this.speed
         }
-        if(this.isTop){
+        if (this.isTop) {
           this.y += this.speed
         }
-        if(this.isBottom){
+        if (this.isBottom) {
           this.y -= this.speed
         }
       };
@@ -151,81 +166,82 @@
       }
     }
 
-    addEventListener("keyup", function (e) {
-      switch (e.key) {
-        case "ArrowRight":
-          for (const square in players) {
-            if (square === player.name) {
-              players[square].isRight = false;
-            }
-          }
-          break;
-        case "ArrowLeft":
-          for (const square in players) {
-            if (square === player.name) {
-              players[square].isLeft= false;
-            }
-          }
-          break;
-        case "ArrowUp":
-          for (const square in players) {
-            if (square === player.name) {
-              players[square].isBottom = false;
-            }
-          }
-          break;
-        case "ArrowDown":
-          for (const square in players) {
-            if (square === player.name) {
-              players[square].isTop = false;
-            }
-          }
-          break;
-        }
-    })
-    
-    addEventListener("keydown", function (e) {
-      switch (e.key) {
-        case "ArrowRight":
-          for (const square in players) {
-            if (square === player.name) {
-              players[square].isRight = true;
-            }
-          }
-          break;
-        case "ArrowLeft":
-          for (const square in players) {
-            if (square === player.name) {
-              players[square].isLeft= true;
-            }
-          }
-          break;
-        case "ArrowUp":
-          for (const square in players) {
-            if (square === player.name) {
-              players[square].isBottom = true;
-            }
-          }
-          break;
-        case "ArrowDown":
-          for (const square in players) {
-            if (square === player.name) {
-              players[square].isTop = true;
-            }
-          }
-          break;
-        default:
-          for (const square in players) {
-            if (square === player.name) {
-              players[square].speedY = 0;
-              players[square].speedX = 0;
-            }
-          }
-      }
-    });
-    
-    buscardados();
+    // addEventListener("keyup", function (e) {
+    //   switch (e.key) {
+    //     case "ArrowRight":
+    //       for (const square in players) {
+    //         if (square === player.name) {
+    //           players[square].isRight = false;
+    //         }
+    //       }
+    //       break;
+    //     case "ArrowLeft":
+    //       for (const square in players) {
+    //         if (square === player.name) {
+    //           players[square].isLeft= false;
+    //         }
+    //       }
+    //       break;
+    //     case "ArrowUp":
+    //       for (const square in players) {
+    //         if (square === player.name) {
+    //           players[square].isBottom = false;
+    //         }
+    //       }
+    //       break;
+    //     case "ArrowDown":
+    //       for (const square in players) {
+    //         if (square === player.name) {
+    //           players[square].isTop = false;
+    //         }
+    //       }
+    //       break;
+    //     }
+    // })
+
+    // addEventListener("keydown", function (e) {
+    //   switch (e.key) {
+    //     case "ArrowRight":
+    //       for (const square in players) {
+    //         if (square === player.name) {
+    //           players[square].isRight = true;
+    //         }
+    //       }
+    //       break;
+    //     case "ArrowLeft":
+    //       for (const square in players) {
+    //         if (square === player.name) {
+    //           players[square].isLeft= true;
+    //         }
+    //       }
+    //       break;
+    //     case "ArrowUp":
+    //       for (const square in players) {
+    //         if (square === player.name) {
+    //           players[square].isBottom = true;
+    //         }
+    //       }
+    //       break;
+    //     case "ArrowDown":
+    //       for (const square in players) {
+    //         if (square === player.name) {
+    //           players[square].isTop = true;
+    //         }
+    //       }
+    //       break;
+    //     default:
+    //       for (const square in players) {
+    //         if (square === player.name) {
+    //           players[square].speedY = 0;
+    //           players[square].speedX = 0;
+    //         }
+    //       }
+    //   }
+    // });
+
+    // buscardados();
     myGameArea.start();
   </script>
-</body> 
+</body>
+
 </html>
