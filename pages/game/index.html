@@ -1,247 +1,245 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      margin: 0;
-      top: 0;
-    }
-
-    canvas {
-      background-color: rgb(128, 140, 173);
-    }
-
-    .container {
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: rgb(182, 204, 223);
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container" id="container"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
-  <script>
-    const token = localStorage.getItem("token");
-    const socket = io();
-
-    // Quando a conexão com o servidor é estabelecida
-    socket.on("connect", () => {
-      socket.emit("connected", token);
-
-      socket.on("UpdatePlayers", (players) => {
-        UpdatePlayers(players);
-      });
-    });
-    // let player;
-
-    // async function buscardados() {
-    //   let json = {
-    //     token: token,
-    //   };
-    //   const dados = await fetch("../user", {
-    //     method: "GET",
-    //     headers: {
-    //       data: JSON.stringify(json),
-    //     },
-    //   });
-    //   resposta = await dados.json();
-    //   player = resposta;
-    // }
-
-    const container = document.getElementById("container");
-    let players = [];
-
-    function UpdatePlayers(data) {
-      data.forEach((playerBack) => {
-        if (players[playerBack.name] === undefined) {
-          players[playerBack.name] = new Square(
-            playerBack.name,
-            50,
-            playerBack.posX,
-            playerBack.posY,
-            playerBack.Color
-          );
-        }
-      });
-      const filteredObject = {};
-
-      for (const key in players) {
-        console.log(data.includes(key))
-        if (players.hasOwnProperty(key) && data.filter(x => x.includes(key))) {
-          filteredObject[key] = players[key];
-        }
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        margin: 0;
+        top: 0;
       }
-      console.log(filteredObject);
-      // console.log(players);
-      console.log(data);
-      // players.forEach((playerFront) => {
-      //   console.log("cenoura")
-      //   data.forEach((playerBack) => {
-      //     console.log(playerFront);
-      //     console.log(playerFront);
-      //     console.log("batata");
-      //     if (playerFront.name !== playerBack.name) {
-      //       console.log('fudeu')
+
+      canvas {
+        background-color: rgb(128, 140, 173);
+      }
+
+      .container {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(182, 204, 223);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container" id="container"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
+    <script>
+      const token = localStorage.getItem("token");
+      const socket = io();
+
+      // Quando a conexão com o servidor é estabelecida
+      socket.on("connect", () => {
+        socket.emit("connected", token);
+
+        socket.on("UpdatePlayers", (players) => {
+          UpdatePlayers(players);
+        });
+      });
+
+      // let player;
+
+      // async function buscardados() {
+      //   let json = {
+      //     token: token,
+      //   };
+      //   const dados = await fetch("../user", {
+      //     method: "GET",
+      //     headers: {
+      //       data: JSON.stringify(json),
+      //     },
+      //   });
+      //   resposta = await dados.json();
+      //   player = resposta;
+      // }
+
+      const container = document.getElementById("container");
+      let players = [];
+
+      function UpdatePlayers(data) {
+        data.forEach((playerBack) => {
+          if (players[playerBack.name] === undefined) {
+            players[playerBack.name] = new Square(
+              playerBack.name,
+              50,
+              playerBack.posX,
+              playerBack.posY,
+              playerBack.Color
+            );
+          }
+        });
+        const objectNameSet = new Set(data.map((obj) => obj.name));
+
+        for (const key in players) {
+          if (!objectNameSet.has(players[key].name)) {
+            delete players[key];
+          }
+        }
+
+        // console.log(players);
+        // players.forEach((playerFront) => {
+        //   console.log("cenoura")
+        //   data.forEach((playerBack) => {
+        //     console.log(playerFront);
+        //     console.log(playerFront);
+        //     console.log("batata");
+        //     if (playerFront.name !== playerBack.name) {
+        //       console.log('fudeu')
+        //     }
+        //   });
+        // });
+      }
+
+      // function UpdatePlayers(data) {
+      //   data.forEach((square) => {
+      // ;    if(players[square.name].name !== player.name)
+      //     {
+      //       players[square.name].x = square.posX;
+      //       players[square.name].y = square.posY;
       //     }
       //   });
-      // });
-    }
-    // function UpdatePlayers(data) {
-    //   data.forEach((square) => {
-    // ;    if(players[square.name].name !== player.name)
-    //     {
-    //       players[square.name].x = square.posX;
-    //       players[square.name].y = square.posY;
-    //     }
-    //   });
-    // }
+      // }
 
-    var myGameArea = {
-      canvas: document.createElement("canvas"),
-      start: function () {
-        const WIDTH = 1000,
-          HEIGHT = 600;
-        this.canvas.width = WIDTH;
-        this.canvas.height = HEIGHT;
-        this.context = this.canvas.getContext("2d");
-        container.appendChild(this.canvas);
-        this.interval = setInterval(updateGameArea, 7);
-      },
-      clear: function () {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      },
-    };
-
-    function Square(name, width, x, y, color) {
-      this.name = name;
-      this.x = x;
-      this.y = y;
-      this.speed = 1;
-      this.isRight = false;
-      this.isLeft = false;
-      this.isTop = false;
-      this.isBottom = false;
-      this.color = color;
-      this.update = function () {
-        ctx = myGameArea.context;
-        ctx.font = "bold 15px Arial";
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, width, width);
-        ctx.fillText(this.name, this.x, this.y - 7);
-        if (this.speedX !== 0 || this.speedY !== 0) {
-          socket.emit("positionUpdate", [this.x, this.y, this.name]);
-        }
+      var myGameArea = {
+        canvas: document.createElement("canvas"),
+        start: function () {
+          const WIDTH = 1000,
+            HEIGHT = 600;
+          this.canvas.width = WIDTH;
+          this.canvas.height = HEIGHT;
+          this.context = this.canvas.getContext("2d");
+          container.appendChild(this.canvas);
+          this.interval = setInterval(updateGameArea, 7);
+        },
+        clear: function () {
+          this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        },
       };
-      this.newPos = function () {
-        if (this.isRight) {
-          this.x += this.speed
-        }
-        if (this.isLeft) {
-          this.x -= this.speed
-        }
-        if (this.isTop) {
-          this.y += this.speed
-        }
-        if (this.isBottom) {
-          this.y -= this.speed
-        }
-      };
-    }
 
-    function updateGameArea() {
-      myGameArea.clear();
-      for (const player in players) {
-        players[player].newPos();
-        players[player].update();
+      function Square(name, width, x, y, color) {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+        this.speed = 1;
+        this.isRight = false;
+        this.isLeft = false;
+        this.isTop = false;
+        this.isBottom = false;
+        this.color = color;
+        this.update = function () {
+          ctx = myGameArea.context;
+          ctx.font = "bold 15px Arial";
+          ctx.fillStyle = this.color;
+          ctx.fillRect(this.x, this.y, width, width);
+          ctx.fillText(this.name, this.x, this.y - 7);
+          if (this.speedX !== 0 || this.speedY !== 0) {
+            socket.emit("positionUpdate", [this.x, this.y, this.name]);
+          }
+        };
+        this.newPos = function () {
+          if (this.isRight) {
+            this.x += this.speed;
+          }
+          if (this.isLeft) {
+            this.x -= this.speed;
+          }
+          if (this.isTop) {
+            this.y += this.speed;
+          }
+          if (this.isBottom) {
+            this.y -= this.speed;
+          }
+        };
       }
-    }
 
-    // addEventListener("keyup", function (e) {
-    //   switch (e.key) {
-    //     case "ArrowRight":
-    //       for (const square in players) {
-    //         if (square === player.name) {
-    //           players[square].isRight = false;
-    //         }
-    //       }
-    //       break;
-    //     case "ArrowLeft":
-    //       for (const square in players) {
-    //         if (square === player.name) {
-    //           players[square].isLeft= false;
-    //         }
-    //       }
-    //       break;
-    //     case "ArrowUp":
-    //       for (const square in players) {
-    //         if (square === player.name) {
-    //           players[square].isBottom = false;
-    //         }
-    //       }
-    //       break;
-    //     case "ArrowDown":
-    //       for (const square in players) {
-    //         if (square === player.name) {
-    //           players[square].isTop = false;
-    //         }
-    //       }
-    //       break;
-    //     }
-    // })
+      function updateGameArea() {
+        myGameArea.clear();
+        for (const player in players) {
+          players[player].newPos();
+          players[player].update();
+        }
+      }
 
-    // addEventListener("keydown", function (e) {
-    //   switch (e.key) {
-    //     case "ArrowRight":
-    //       for (const square in players) {
-    //         if (square === player.name) {
-    //           players[square].isRight = true;
-    //         }
-    //       }
-    //       break;
-    //     case "ArrowLeft":
-    //       for (const square in players) {
-    //         if (square === player.name) {
-    //           players[square].isLeft= true;
-    //         }
-    //       }
-    //       break;
-    //     case "ArrowUp":
-    //       for (const square in players) {
-    //         if (square === player.name) {
-    //           players[square].isBottom = true;
-    //         }
-    //       }
-    //       break;
-    //     case "ArrowDown":
-    //       for (const square in players) {
-    //         if (square === player.name) {
-    //           players[square].isTop = true;
-    //         }
-    //       }
-    //       break;
-    //     default:
-    //       for (const square in players) {
-    //         if (square === player.name) {
-    //           players[square].speedY = 0;
-    //           players[square].speedX = 0;
-    //         }
-    //       }
-    //   }
-    // });
+      // addEventListener("keyup", function (e) {
+      //   switch (e.key) {
+      //     case "ArrowRight":
+      //       for (const square in players) {
+      //         if (square === player.name) {
+      //           players[square].isRight = false;
+      //         }
+      //       }
+      //       break;
+      //     case "ArrowLeft":
+      //       for (const square in players) {
+      //         if (square === player.name) {
+      //           players[square].isLeft= false;
+      //         }
+      //       }
+      //       break;
+      //     case "ArrowUp":
+      //       for (const square in players) {
+      //         if (square === player.name) {
+      //           players[square].isBottom = false;
+      //         }
+      //       }
+      //       break;
+      //     case "ArrowDown":
+      //       for (const square in players) {
+      //         if (square === player.name) {
+      //           players[square].isTop = false;
+      //         }
+      //       }
+      //       break;
+      //     }
+      // })
 
-    // buscardados();
-    myGameArea.start();
-  </script>
-</body>
+      // addEventListener("keydown", function (e) {
+      //   switch (e.key) {
+      //     case "ArrowRight":
+      //       for (const square in players) {
+      //         if (square === player.name) {
+      //           players[square].isRight = true;
+      //         }
+      //       }
+      //       break;
+      //     case "ArrowLeft":
+      //       for (const square in players) {
+      //         if (square === player.name) {
+      //           players[square].isLeft= true;
+      //         }
+      //       }
+      //       break;
+      //     case "ArrowUp":
+      //       for (const square in players) {
+      //         if (square === player.name) {
+      //           players[square].isBottom = true;
+      //         }
+      //       }
+      //       break;
+      //     case "ArrowDown":
+      //       for (const square in players) {
+      //         if (square === player.name) {
+      //           players[square].isTop = true;
+      //         }
+      //       }
+      //       break;
+      //     default:
+      //       for (const square in players) {
+      //         if (square === player.name) {
+      //           players[square].speedY = 0;
+      //           players[square].speedX = 0;
+      //         }
+      //       }
+      //   }
+      // });
 
+      // buscardados();
+      myGameArea.start();
+    </script>
+  </body>
 </html>
