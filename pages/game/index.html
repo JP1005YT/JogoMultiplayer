@@ -147,8 +147,10 @@
           this.y + this.width >= collision.y &&
           this.y <= collision.y + collision.v
         ) {
-          console.log("colisao");
+          collision.verify(this.x, this.y, this.width);
         }
+
+
         if (this.isRight) {
           this.x += this.speed;
         }
@@ -174,6 +176,43 @@
         ctx.fillStyle = "Green";
         ctx.fillRect(this.x, this.y, this.h, this.v);
       };
+      this.verify = function (playerX, playerY, playerWidth) {
+
+        if (playerY + playerWidth <= this.y) {
+          console.log("encima")
+          for (const square in players) {
+            if (players[square].socket === socket.id) {
+              players[square].isTop = false;
+            }
+          }
+        } if (playerY >= this.y + this.v) {
+          console.log("embaixo ")
+          for (const square in players) {
+            if (players[square].socket === socket.id) {
+              players[square].isBottom = false;
+            }
+          }
+        }
+
+
+        if (playerX + playerWidth <= this.x) {
+          console.log("esquerda")
+          for (const square in players) {
+            if (players[square].socket === socket.id) {
+              players[square].isRight = false;
+            }
+          }
+        } if (playerX >= this.x + this.h) {
+          console.log("direita")
+          for (const square in players) {
+            if (players[square].socket === socket.id) {
+              players[square].isLeft = false;
+            }
+          }
+        }
+
+
+      }
     }
 
 
