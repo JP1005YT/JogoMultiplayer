@@ -34,7 +34,8 @@
 
   <script>
     const token = localStorage.getItem("token");
-    const game = new Game(1000,600);
+    const gameArea = new Game(1000,600);
+    gameArea.start();
     const socket = io();
     //https://prod.liveshare.vsengsaas.visualstudio.com/join?044A168B46B840AA346873254DE38881A35D
     // Quando a conexão com o servidor é estabelecida
