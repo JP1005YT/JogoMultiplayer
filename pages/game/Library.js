@@ -3,6 +3,7 @@ export class Game {
         this.width = ScreenWidth;
         this.height = ScreenHeight;
         this.canvas = document.createElement("canvas");
+        this.context = this.canvas.getContext("2d");
     }
     players = []
 
@@ -14,7 +15,7 @@ export class Game {
     start(container) {
         this.canvas.width = this.width;
         this.canvas.height = this.height;
-        this.context = this.canvas.getContext("2d");
+        // this.context = this.canvas.getContext("2d");
         container.appendChild(this.canvas);
         // this.interval = setInterval(updateGameArea, 7);
     }
@@ -29,7 +30,7 @@ export class Game {
 
 
 export class Player {
-    constructor(name, width, x, y, color, socketID) {
+    constructor(name, width, x, y, color, socketID, context) {
         this.name = name;
         this.x = x;
         this.y = y;
@@ -40,14 +41,15 @@ export class Player {
         this.isBottom = false;
         this.color = color;
         this.socket = socketID;
-        this.width = width
+        this.width = width;
+        this.context = context;
     }
     /**
      * Update the position and rerender the Player
      * @method
      */
     update() {
-        ctx = mtGameArea.context;
+        ctx = this.context;
         ctx.font = "bold 15px Arial";
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.width);

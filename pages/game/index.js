@@ -7,7 +7,7 @@ game.start(container);
 const token = localStorage.getItem("token");
 const socket = io();
 
-let player = new Player('Arthur', 50, 100, 100, "Green", token);
+let player = new Player('Arthur', 50, 100, 100, "Green", token, game.context);
 game.players.push(player);
 
 // Update and render the game loop
@@ -61,18 +61,18 @@ socket.on("connect", () => {
 //             players[square.name].y = square.posY;
 //         }
 //     });
-    // console.log(players);
-    // players.forEach((playerFront) => {
-    //   console.log("cenoura")
-    //   data.forEach((playerBack) => {
-    //     console.log(playerFront);
-    //     console.log(playerFront);
-    //     console.log("batata");
-    //     if (playerFront.name !== playerBack.name) {
-    //       console.log('fudeu')
-    //     }
-    //   });
-    // });
+// console.log(players);
+// players.forEach((playerFront) => {
+//   console.log("cenoura")
+//   data.forEach((playerBack) => {
+//     console.log(playerFront);
+//     console.log(playerFront);
+//     console.log("batata");
+//     if (playerFront.name !== playerBack.name) {
+//       console.log('fudeu')
+//     }
+//   });
+// });
 // }
 
 // var myGameArea = {
