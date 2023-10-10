@@ -65,10 +65,19 @@ app.get("/login", async (req, res) => {
 });
 
 app.get('/Library.js', (req, res) => {
-  const jsFilePath = P.path.join(__dirname, '../configs/Library.js');
+  const jsFilePath = P.path.join(__dirname, '../pages/game/Library.js');
 
   res.sendFile(jsFilePath);
 });
+
+app.get('/index.js', (req, res) => {
+  const jsFilePath = P.path.join(__dirname, '../pages/game/index.js');
+
+  res.sendFile(jsFilePath);
+});
+
+
+
 app.get("/play", async (req, res) => {
   let data = P.Buscar("./data/users.json");
   let caminho;

@@ -1,25 +1,63 @@
-class Game {
+export class Game {
     constructor(ScreenWidth, ScreenHeight) {
         this.width = ScreenWidth;
         this.height = ScreenHeight;
         this.canvas = document.createElement("canvas");
     }
-    start() {
+    players = []
+
+    /**
+   * Start the game area.
+   * @method
+   * @param {HTMLElement} container - The container element where the game canvas will be appended.
+   */
+    start(container) {
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this.context = this.canvas.getContext("2d");
-        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.interval = setInterval(updateGameAre, 7);
+        container.appendChild(this.canvas);
+        // this.interval = setInterval(updateGameArea, 7);
     }
+    /**
+       * Clear the game canvas.
+       * @method
+       */
     clear() {
-        this.context.clearRect(0,0, this.canvas.width, this.canvas.height);
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 };
 
-class Player {
-    constructor() {
 
+export class Player {
+    constructor(name, width, x, y, color, socketID) {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+        this.speed = 1;
+        this.isRight = false;
+        this.isLeft = false;
+        this.isTop = false;
+        this.isBottom = false;
+        this.color = color;
+        this.socket = socketID;
+        this.width = width
     }
+    /**
+     * Update the position and rerender the Player
+     * @method
+     */
+    update() {
+        ctx = mtGameArea.context;
+        ctx.font = "bold 15px Arial";
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.width);
+        ctx.fillText(this.name, this.x, this.y - 7);
+        if (this.isRight || this.isLeft || this.isBottom || this.isTop) {
+            socket.emit("positionUpdate", [this.x, this.y, this.name]);
+        }
+    }
+
+
 };
 
 
